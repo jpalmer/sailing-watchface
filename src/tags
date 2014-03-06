@@ -1,0 +1,22 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+click_config_provider	sailing-watchface.c	/^static void click_config_provider(void *context) {$/;"	f	file:
+deinit	sailing-watchface.c	/^static void deinit(void) {$/;"	f	file:
+down_click_handler	sailing-watchface.c	/^static void down_click_handler(ClickRecognizerRef recognizer, void *context) {$/;"	f	file:
+init	sailing-watchface.c	/^static void init(void) {$/;"	f	file:
+main	sailing-watchface.c	/^int main(void) {$/;"	f
+select_click_handler	sailing-watchface.c	/^static void select_click_handler(ClickRecognizerRef recognizer, void *context) {$/;"	f	file:
+speedstr	sailing-watchface.c	/^static  char speedstr[10] = "-5";$/;"	v	file:
+sync	sailing-watchface.c	/^static AppSync sync;$/;"	v	file:
+sync_buffer	sailing-watchface.c	/^static uint8_t sync_buffer[32];$/;"	v	file:
+sync_error_callback	sailing-watchface.c	/^static void sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {$/;"	f	file:
+sync_tuple_changed_callback	sailing-watchface.c	/^static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {$/;"	f	file:
+text_layer	sailing-watchface.c	/^static TextLayer *text_layer;$/;"	v	file:
+up_click_handler	sailing-watchface.c	/^static void up_click_handler(ClickRecognizerRef recognizer, void *context) {$/;"	f	file:
+window	sailing-watchface.c	/^static Window *window;$/;"	v	file:
+window_load	sailing-watchface.c	/^static void window_load(Window *window) {$/;"	f	file:
+window_unload	sailing-watchface.c	/^static void window_unload(Window *window) {$/;"	f	file:

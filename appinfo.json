@@ -2,6 +2,7 @@
   "uuid": "d67d6c68-d665-4ca0-90e8-124d6c68cd99",
   "shortName": "sailing-watchface",
   "longName": "sailing-watchface",
+  "capabilities":[ "location"],
   "companyName": "MakeAwesomeHappen",
   "versionCode": 1,
   "versionLabel": "1.0.0",
