@@ -4,7 +4,9 @@ static AppSync sync; //some stuff for syncing data
 static uint8_t sync_buffer[100];
 static Window *window;
 static TextLayer *text_layer;
+static TextLayer *max_layer;
 static  char speedstr[10] = "-5";
+static  char maxstr[10] = "0.0";
 char *translate_error(AppMessageResult result) {
   switch (result) {
     case APP_MSG_OK: return "APP_MSG_OK";
@@ -56,27 +58,40 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
             strcpy(speedstr,new_tuple->value->cstring);
             layer_mark_dirty(text_layer_get_layer( text_layer));
             APP_LOG(APP_LOG_LEVEL_DEBUG,"got speed %s",new_tuple->value->cstring);
-            APP_LOG(APP_LOG_LEVEL_DEBUG,"speedstr is %s",speedstr);
             break;
         case 1:
-            APP_LOG(APP_LOG_LEVEL_DEBUG,"got max speed %s", new_tuple->value->cstring);
+            if (strcmp(maxstr,new_tuple->value->cstring)!=0)
+            {
+                strcpy(maxstr,new_tuple->value->cstring);
+                layer_mark_dirty(text_layer_get_layer( max_layer));
+                APP_LOG(APP_LOG_LEVEL_DEBUG,"got new max speed %s", new_tuple->value->cstring);
+                vibes_long_pulse();//vibrate on new max speed
+            }
             break;
         default:
             APP_LOG(APP_LOG_LEVEL_DEBUG,"unknown key %lu",key);
 
     }
 }
-
+static const int Speed_height = 50;
+static const int small_height = 20;
 static void window_load(Window *window) {
     APP_LOG(APP_LOG_LEVEL_DEBUG,"window_load start");
     Layer *window_layer = window_get_root_layer(window); GRect bounds = layer_get_bounds(window_layer);
-    GRect pos =  { .origin = { 0, 0 }, .size = { bounds.size.w, bounds.size.h } };
-
+    //speed
+    GRect pos =  { .origin = { 0, 0 }, .size = { bounds.size.w, Speed_height } };
     text_layer = text_layer_create(pos);
     text_layer_set_font(text_layer,fonts_get_system_font(FONT_KEY_BITHAM_42_LIGHT));
     text_layer_set_text(text_layer,speedstr );
     text_layer_set_text_alignment(text_layer, GTextAlignmentCenter);
     layer_add_child(window_layer, text_layer_get_layer(text_layer));
+    //max
+    GRect posmax =  { .origin = { 0, bounds.size.h-Speed_height }, .size = { bounds.size.w, Speed_height } };
+    max_layer = text_layer_create(posmax);
+    text_layer_set_font(max_layer,fonts_get_system_font(FONT_KEY_BITHAM_42_LIGHT));
+    text_layer_set_text(max_layer,maxstr );
+    text_layer_set_text_alignment(max_layer, GTextAlignmentCenter);
+    layer_add_child(window_layer, text_layer_get_layer(max_layer));
     APP_LOG(APP_LOG_LEVEL_DEBUG,"window load end");
 }
 
