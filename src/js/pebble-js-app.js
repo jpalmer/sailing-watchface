@@ -3,14 +3,16 @@ var maxspeed = -1;
 var sendmessage_success=function(e){LOG("successfully sent with ID="+e.data.transactionID);};
 
 var sendmessage_failure=function(e){LOG("Failed to send message, error" + e.error.message);};
-function sendspeed(speed) {Pebble.sendAppMessage({"0":(""+speed)},sendmessage_success,sendmessage_failure);}
-function sendmax(speed) {Pebble.sendAppMessage({"1":(""+speed)},sendmessage_success,sendmessage_failure);}
+function sendspeed(speed,heading,max)       {Pebble.sendAppMessage({"0":(""+speed),"1":(""+max),"2":(""+heading)},sendmessage_success,sendmessage_failure);}
+var maxstr = "---";
 function gotpos(p)
 {
     var speedstr="";
+    var headstr="";
     if (p.coords.speed == null)
     {
         speedstr="----";
+        headstr="---";
     }
     else
     {
@@ -18,12 +20,13 @@ function gotpos(p)
         if (speed>maxspeed)
         {
             maxspeed=speed;
-            sendmax(maxspeed.toFixed(1));
+            maxstr=(maxspeed.toFixed(1));
         }
         speedstr=speed.toFixed(1);
+        headstr=p.coords.heading;
     }
-    LOG("sending speed" + speedstr);
-    sendspeed(speedstr);
+    LOG("sending speed" + speedstr + "heading" + headstr + "max" + maxstr);
+    sendspeed(speedstr,headstr,maxstr);
 }
 function handle_error(err) {console.log("error is" + err);}
 Pebble.addEventListener("ready",function()

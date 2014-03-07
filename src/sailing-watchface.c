@@ -2,11 +2,13 @@
 #include <pebble_fonts.h>
 static AppSync sync; //some stuff for syncing data
 static uint8_t sync_buffer[100];
-static Window *window;
-static TextLayer *text_layer;
-static TextLayer *max_layer;
-static  char speedstr[10] = "-5";
-static  char maxstr[10] = "0.0";
+static Window *window; //base window
+static TextLayer *text_layer; //shows current speed
+static TextLayer *max_layer;  //shows  max speed
+static TextLayer *heading_layer;  //shows  heading
+static char speedstr[10] = "-5"; //backing stores
+static char maxstr[10] = "0.0";
+static char headstr[10]=  "000"; 
 char *translate_error(AppMessageResult result) {
   switch (result) {
     case APP_MSG_OK: return "APP_MSG_OK";
@@ -46,10 +48,13 @@ static void click_config_provider(void *context) {
 }
 */
 
+//print any app_sync errors to log
 static void sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, translate_error(app_message_error));
 }
 
+//get data from phone to update display
+//occasionally this can be called with the data in new_tuple==old_tuple if the pebble does an internal reshuffle
 static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {
     switch (key)
     {
@@ -60,13 +65,18 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
             APP_LOG(APP_LOG_LEVEL_DEBUG,"got speed %s",new_tuple->value->cstring);
             break;
         case 1:
-            if (strcmp(maxstr,new_tuple->value->cstring)!=0)
+            if (strcmp(maxstr,new_tuple->value->cstring)!=0)//only update if acctually a new maxspeed
             {
                 strcpy(maxstr,new_tuple->value->cstring);
                 layer_mark_dirty(text_layer_get_layer( max_layer));
                 APP_LOG(APP_LOG_LEVEL_DEBUG,"got new max speed %s", new_tuple->value->cstring);
                 vibes_long_pulse();//vibrate on new max speed
             }
+            break;
+        case 2:
+            strcpy(headstr,new_tuple->value->cstring);
+            layer_mark_dirty(text_layer_get_layer( heading_layer));
+            APP_LOG(APP_LOG_LEVEL_DEBUG,"got heading%s",new_tuple->value->cstring);
             break;
         default:
             APP_LOG(APP_LOG_LEVEL_DEBUG,"unknown key %lu",key);
@@ -85,9 +95,17 @@ static void window_load(Window *window) {
     text_layer_set_text(text_layer,speedstr );
     text_layer_set_text_alignment(text_layer, GTextAlignmentCenter);
     layer_add_child(window_layer, text_layer_get_layer(text_layer));
+    //heading
+    pos =  (GRect){ .origin = { 0, Speed_height }, .size = { bounds.size.w, Speed_height } };
+    max_layer = text_layer_create(pos);
+    text_layer_set_font(max_layer,fonts_get_system_font(FONT_KEY_BITHAM_42_LIGHT));
+    text_layer_set_text(max_layer,headstr );
+    text_layer_set_text_alignment(max_layer, GTextAlignmentCenter);
+    layer_add_child(window_layer, text_layer_get_layer(max_layer));
+    APP_LOG(APP_LOG_LEVEL_DEBUG,"window load end");
     //max
-    GRect posmax =  { .origin = { 0, bounds.size.h-Speed_height }, .size = { bounds.size.w, Speed_height } };
-    max_layer = text_layer_create(posmax);
+    pos = (GRect){ .origin = { 0, bounds.size.h-Speed_height }, .size = { bounds.size.w, Speed_height } };
+    max_layer = text_layer_create(pos);
     text_layer_set_font(max_layer,fonts_get_system_font(FONT_KEY_BITHAM_42_LIGHT));
     text_layer_set_text(max_layer,maxstr );
     text_layer_set_text_alignment(max_layer, GTextAlignmentCenter);
