@@ -13,6 +13,18 @@
     "dummy": 0
   },
   "resources": {
-    "media": []
+    "media": 
+    [
+        {
+            "type":"png",
+            "name":"IMAGE_P",
+            "file":"P.png"
+        },
+        {
+            "type":"png",
+            "name":"IMAGE_S",
+            "file":"S.png"
+        }
+    ]
   }
 }

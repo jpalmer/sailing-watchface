@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include <pebble_fonts.h>
+#include "error_handle.h"
 static AppSync sync; //some stuff for syncing data
 static uint8_t sync_buffer[100];
 static Window *window; //base window
@@ -9,36 +10,17 @@ static TextLayer *heading_layer;  //shows  heading
 static char speedstr[10] = "-5"; //backing stores
 static char maxstr[10] = "0.0";
 static char headstr[10]=  "000"; 
-char *translate_error(AppMessageResult result) {
-  switch (result) {
-    case APP_MSG_OK: return "APP_MSG_OK";
-    case APP_MSG_SEND_TIMEOUT: return "APP_MSG_SEND_TIMEOUT";
-    case APP_MSG_SEND_REJECTED: return "APP_MSG_SEND_REJECTED";
-    case APP_MSG_NOT_CONNECTED: return "APP_MSG_NOT_CONNECTED";
-    case APP_MSG_APP_NOT_RUNNING: return "APP_MSG_APP_NOT_RUNNING";
-    case APP_MSG_INVALID_ARGS: return "APP_MSG_INVALID_ARGS";
-    case APP_MSG_BUSY: return "APP_MSG_BUSY";
-    case APP_MSG_BUFFER_OVERFLOW: return "APP_MSG_BUFFER_OVERFLOW";
-    case APP_MSG_ALREADY_RELEASED: return "APP_MSG_ALREADY_RELEASED";
-    case APP_MSG_CALLBACK_ALREADY_REGISTERED: return "APP_MSG_CALLBACK_ALREADY_REGISTERED";
-    case APP_MSG_CALLBACK_NOT_REGISTERED: return "APP_MSG_CALLBACK_NOT_REGISTERED";
-    case APP_MSG_OUT_OF_MEMORY: return "APP_MSG_OUT_OF_MEMORY";
-    case APP_MSG_CLOSED: return "APP_MSG_CLOSED";
-    case APP_MSG_INTERNAL_ERROR: return "APP_MSG_INTERNAL_ERROR";
-    default: return "UNKNOWN ERROR";
-  }
-}
-/*
+
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(text_layer, "Select");
+    //some new screen?
 }
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(text_layer, "Up");
+    //port
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(text_layer, "Down");
+    //starboard
 }
 
 static void click_config_provider(void *context) {
@@ -46,7 +28,7 @@ static void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
 }
-*/
+
 
 //print any app_sync errors to log
 static void sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {
@@ -97,11 +79,11 @@ static void window_load(Window *window) {
     layer_add_child(window_layer, text_layer_get_layer(text_layer));
     //heading
     pos =  (GRect){ .origin = { 0, Speed_height }, .size = { bounds.size.w, Speed_height } };
-    max_layer = text_layer_create(pos);
-    text_layer_set_font(max_layer,fonts_get_system_font(FONT_KEY_BITHAM_42_LIGHT));
-    text_layer_set_text(max_layer,headstr );
-    text_layer_set_text_alignment(max_layer, GTextAlignmentCenter);
-    layer_add_child(window_layer, text_layer_get_layer(max_layer));
+    heading_layer = text_layer_create(pos);
+    text_layer_set_font(heading_layer,fonts_get_system_font(FONT_KEY_BITHAM_42_LIGHT));
+    text_layer_set_text(heading_layer,headstr );
+    text_layer_set_text_alignment(heading_layer, GTextAlignmentCenter);
+    layer_add_child(window_layer, text_layer_get_layer(heading_layer));
     APP_LOG(APP_LOG_LEVEL_DEBUG,"window load end");
     //max
     pos = (GRect){ .origin = { 0, bounds.size.h-Speed_height }, .size = { bounds.size.w, Speed_height } };
@@ -110,17 +92,26 @@ static void window_load(Window *window) {
     text_layer_set_text(max_layer,maxstr );
     text_layer_set_text_alignment(max_layer, GTextAlignmentCenter);
     layer_add_child(window_layer, text_layer_get_layer(max_layer));
+    //action bar (bar down RHS)
+    GBitmap* Pmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_P);
+    GBitmap* Smap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_S);
+    ActionBarLayer* Alayer = action_bar_layer_create();
+    action_bar_layer_set_icon(Alayer,BUTTON_ID_DOWN,Pmap);
+    action_bar_layer_set_icon(Alayer,BUTTON_ID_UP,Smap);
+    action_bar_layer_add_to_window(Alayer,window);
     APP_LOG(APP_LOG_LEVEL_DEBUG,"window load end");
 }
 
 static void window_unload(Window *window) {
   text_layer_destroy(text_layer);
+  text_layer_destroy(max_layer);
+  text_layer_destroy(heading_layer);
   app_sync_deinit(&sync);
 }
 
 static void init(void) {
     window = window_create();
-//  window_set_click_config_provider(window, click_config_provider);
+//    window_set_click_config_provider(window, click_config_provider);
     window_set_window_handlers(window, (WindowHandlers) {
         .load = window_load,
         .unload = window_unload,
