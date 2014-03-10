@@ -17,3 +17,8 @@ char *translate_error(AppMessageResult result) {
     default: return "UNKNOWN ERROR";
   }
 }
+
+//print any app_sync errors to log
+static void sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, translate_error(app_message_error));
+}

@@ -7,15 +7,11 @@ static Window *window; //base window
 static TextLayer *text_layer; //shows current speed
 static TextLayer *max_layer;  //shows  max speed
 static TextLayer *heading_layer;  //shows  heading
+static ActionBarLayer * Alayer;
 static char speedstr[10] = "-5"; //backing stores
 static char maxstr[10] = "0.0";
 static char headstr[10]=  "000"; 
 
-
-//print any app_sync errors to log
-static void sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, translate_error(app_message_error));
-}
 
 //get data from phone to update display
 //occasionally this can be called with the data in new_tuple==old_tuple if the pebble does an internal reshuffle
@@ -75,9 +71,9 @@ static void window_load(Window *window) {
     text_layer_set_text_alignment(max_layer, GTextAlignmentCenter);
     layer_add_child(window_layer, text_layer_get_layer(max_layer));
     //action bar (bar down RHS)
+    Alayer = action_bar_layer_create();
     GBitmap* Pmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_P);
     GBitmap* Smap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_S);
-    ActionBarLayer* Alayer = action_bar_layer_create();
     action_bar_layer_set_icon(Alayer,BUTTON_ID_DOWN,Pmap);
     action_bar_layer_set_icon(Alayer,BUTTON_ID_UP,Smap);
     action_bar_layer_add_to_window(Alayer,window);
@@ -88,6 +84,7 @@ static void window_unload(Window *window) {
   text_layer_destroy(text_layer);
   text_layer_destroy(max_layer);
   text_layer_destroy(heading_layer);
+  action_bar_layer_destroy(Alayer);
   app_sync_deinit(&sync);
 }
 
@@ -100,8 +97,8 @@ static void init(void) {
     const bool animated = true;
     const int inbound_size = 64;
     const int outbound_size = 16;
-    Tuplet initial_values[] = {TupletCString(0x0,"-5"),TupletCString(0x1,"0.0")};
-    app_sync_init(&sync,sync_buffer,sizeof(sync_buffer),initial_values,2,sync_tuple_changed_callback,sync_error_callback,NULL);
+    Tuplet initial_values[3] = {TupletCString(0x0,"-5"),TupletCString(0x1,"0.0"),TupletCString(0x2,"000")};
+    app_sync_init(&sync,sync_buffer,sizeof(sync_buffer),initial_values,3,sync_tuple_changed_callback,sync_error_callback,NULL);
   app_message_open(inbound_size,outbound_size);
   window_stack_push(window, animated);
 }
@@ -112,9 +109,7 @@ static void deinit(void) {
 
 int main(void) {
   init();
-
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Done initializing, pushed window: %p", window);
-
   app_event_loop();
   deinit();
 }
