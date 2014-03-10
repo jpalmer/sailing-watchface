@@ -11,24 +11,6 @@ static char speedstr[10] = "-5"; //backing stores
 static char maxstr[10] = "0.0";
 static char headstr[10]=  "000"; 
 
-static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
-    //some new screen?
-}
-
-static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-    //port
-}
-
-static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
-    //starboard
-}
-
-static void click_config_provider(void *context) {
-  window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
-  window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
-  window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
-}
-
 
 //print any app_sync errors to log
 static void sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {
@@ -111,7 +93,6 @@ static void window_unload(Window *window) {
 
 static void init(void) {
     window = window_create();
-//    window_set_click_config_provider(window, click_config_provider);
     window_set_window_handlers(window, (WindowHandlers) {
         .load = window_load,
         .unload = window_unload,
