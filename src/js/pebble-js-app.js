@@ -23,7 +23,10 @@ function gotpos(p)
             maxstr=(maxspeed.toFixed(1));
         }
         speedstr=speed.toFixed(1);
-        headstr=p.coords.heading;
+        if (p.coords.heading !== null)
+        {
+            headstr=p.coords.heading.toFixed(1);
+        }
     }
     LOG("sending speed" + speedstr + "heading" + headstr + "max" + maxstr);
     sendspeed(speedstr,headstr,maxstr);
